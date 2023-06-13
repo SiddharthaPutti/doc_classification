@@ -27,8 +27,8 @@ def load_data(path):
                 data.append([content, label])
 
     random.shuffle(data)
-    X = data[:int(len(data)*0.85)]
-    X_test = data[int(len(data)*0.85):]
+    # X = data[:int(len(data)*0.85)]
+    # X_test = data[int(len(data)*0.85):]
 
 
     # X = data[0][:int(len(data[0])*0.7)]
@@ -38,7 +38,7 @@ def load_data(path):
     # y_valid = data[1][int(len(data[1])*0.7):int(len(data[1])*0.85)]
     # y_test = data[1][int(len(data[1])*0.85):]
 
-    return X, X_test
+    return data
     
 
 # if __name__ == "__main__":
@@ -53,39 +53,50 @@ def treebank_tags(penntags):
         return 'n'
     
 def lemmatize(context):
+    # sentences = nltk.sent_tokenize(context)
+    # lem_words = []
+    # for sent in sentences:
     return [wnl.lemmatize(word.lower(), pos=treebank_tags(tag)) for word, tag in pos_tag(word_tokenize(context))]
+    # return lem_words
 
-def VectorizeTfIdf(docs):
+def VectorizeTfIdf(docs, test_docs):
     print("converting to term freq inverse doc freq...")
-    # docs = [' '.join(doc) for doc in docs]
+    docs = [' '.join(doc) for doc in docs]
     
-    tfidf_matrix = vectorizer.fit_transform(docs)
+    tfidf_matrix_train = vectorizer.fit_transform(docs)
     with open("tfidfPickel.pkl", 'wb') as tfidf:
         pickle.dump(vectorizer, tfidf)
-    return tfidf_matrix.toarray().tolist()
+    test_docs = [' '.join(doc) for doc in test_docs]
+    tfidf_matrix_test = vectorizer.transform(test_docs)
+    return tfidf_matrix_train.toarray().tolist(),tfidf_matrix_test.toarray().tolist() 
 
 def preprocess(data_path):
     # filter, tokenize, 
     # further impliment single letter word exception 
     # exception = ['US], if word in exception add it to lemmetised text else lemmatise(word.lower)
     print("loading data...")
-    data , data_test= load_data(data_path)
+    data = load_data(data_path)
     print("lemmatizing data...")
     for i in range(len(data)):
         data[i][0] = [word for word in lemmatize(data[i][0]) if word not in stopwords_en_punct and not word.isdigit()]
     documents = [sublist[0] for sublist in data]
     labels = [sublist[1] for sublist in data]
 
-    tfidf = VectorizeTfIdf(documents)
+    train_docs = documents[: int(len(documents)*0.85)]
+    train_labels = labels[: int(len(documents)*0.85)]
+    test_docs = documents[int(len(documents)*0.85): ]
+    test_labels = labels[int(len(documents)*0.85): ]
+    tfidf_train, tfidf_test = VectorizeTfIdf(train_docs, test_docs)
+
     print("making a pickle file of tfidf...")
     with open('tfidfVector.pkl', 'wb') as vec:
-        pickle.dump([tfidf, labels, data_test], vec)
+        pickle.dump((tfidf_train,tfidf_test, train_labels, test_labels), vec)
     # return [tfidf, labels]
 
 def test_preprocess(doc):
     data = [word for word in lemmatize(doc) if word not in stopwords_en_punct and not word.isdigit()]
-    # data = [' '.join(data) for data in data]
-    print(data)
+    data = [' '.join(data) if data else '']
+    # print(data)
     with open('tfidfPickel.pkl', 'rb') as tfidf:
         vectorizer = pickle.load(tfidf)
     tfidf_matrix = vectorizer.transform(data)
@@ -95,5 +106,6 @@ def test_preprocess(doc):
 
 if __name__ == "__main__":
     preprocess("C:/Users/sid31/Downloads/main/NLP/document_classification/data/data_bbc")
+    # d = load_data("C:/Users/sid31/Downloads/main/NLP/document_classification/data/data_bbc")
 # def yeild_data(data):
 #     pass # yeild in batches 

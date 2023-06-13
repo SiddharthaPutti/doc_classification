@@ -266,16 +266,17 @@ def NaiveBayes(X_train_tfidf, y_train, X_val_tfidf, y_val):
 if __name__ == "__main__":
     with open('tfidfVector.pkl', 'rb') as file:
         loaded_list = pickle.load(file)
-    X, y = loaded_list
-    shuffled = list(zip(X,y))
-    random.shuffle(shuffled)
-    X, y = zip(*shuffled)
+    train_data, test_data, y_train, y_test = loaded_list
+    # shuffled = list(zip(X,y))
+    # random.shuffle(shuffled)
+    # X, y = zip(*shuffled)
     # make_sratified_sets(X,y)
     # print(y)
 
-    X, y, X_valid, y_valid, X_test, y_test = X[:int(len(X)*0.6)], y[:int(len(X)*0.6)], X[int(len(X)*0.6): int(len(X)*0.8)], y[int(len(X)*0.6): int(len(X)*0.8)], X[int(len(X)*0.8):], y[int(len(X)*0.8):]
-    
     # word_attention(np.array(X), y, np.array(X_valid), y_valid)
-    NaiveBayes(np.array(X), y, np.array(X_valid), y_valid)
+
+    X_train, X_valid, y_train, y_valid = train_data[:int(len(train_data)*0.85)] , train_data[int(len(train_data)*0.85):], y_train[:int(len(y_train)*0.85)]  , y_train[int(len(y_train)*0.85):]
+
+    NaiveBayes(np.array(X_train), y_train, np.array(X_valid), y_valid)
 
 
