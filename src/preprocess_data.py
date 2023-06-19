@@ -70,6 +70,7 @@ def VectorizeTfIdf(docs, test_docs):
     tfidf_matrix_test = vectorizer.transform(test_docs)
     return tfidf_matrix_train.toarray().tolist(),tfidf_matrix_test.toarray().tolist() 
 
+
 def preprocess(data_path):
     # filter, tokenize, 
     # further impliment single letter word exception 
@@ -86,7 +87,10 @@ def preprocess(data_path):
     train_labels = labels[: int(len(documents)*0.85)]
     test_docs = documents[int(len(documents)*0.85): ]
     test_labels = labels[int(len(documents)*0.85): ]
+
     tfidf_train, tfidf_test = VectorizeTfIdf(train_docs, test_docs)
+
+    # onehot_train, one_hot_test = Ngrams(train_docs, test_docs, n =3)
 
     print("making a pickle file of tfidf...")
     with open('tfidfVector.pkl', 'wb') as vec:

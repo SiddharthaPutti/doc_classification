@@ -5,8 +5,8 @@ from flask import Flask, request
 import pickle
 import tensorflow as tf
 import numpy as np 
-import preprocess_data
-from tensorflow.keras.models import load_model 
+import preprocess_data as preprocess_data
+# from tensorflow.keras.models import load_model 
 import jsonify
 
 app = Flask(__name__)
